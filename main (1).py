@@ -7,16 +7,24 @@ screen = pygame.display.set_mode((800, 600))
 
 pygame.display.set_caption("Jetpack Joyride")
 
-jetpack_image = pygame.image.load(os.path.join('boy.png'))
-obstacle_image = pygame.image.load(os.path.join('jetpack_2-removebg-preview (1).png'))
-background_image = pygame.image.load(os.path.join('B21rglpIUAEAa4Z.jpg'))
-game_over_image = pygame.image.load(os.path.join('1258544.jpg'))
+moneda_image1 = pygame.image.load(os.path.join('moneda.png')).convert_alpha()
+jetpack_image = pygame.image.load(os.path.join('boy.png')).convert_alpha()
+obstacle_image = pygame.image.load(os.path.join('jetpack_2-removebg-preview (1).png')).convert_alpha()
+background_image = pygame.image.load(os.path.join('B21rglpIUAEAa4Z.jpg')).convert_alpha()
+game_over_image = pygame.image.load(os.path.join('1258544.jpg')).convert_alpha()
 moneda_image = pygame.image.load(os.path.join('moneda.png')).convert_alpha()
 
 monedas = [] 
 obstaculos = [] 
 GENERAR_MONEDAS_EVENTO = pygame.USEREVENT + 1
 GENERAR_OBSTACULO_EVENTO = pygame.USEREVENT + 2
+
+def dibujar_texto (surface, text, size,x,y):
+    font= pygame.font.SysFont("serif",size)
+    text_surface= font.render(text, True, [255,255,255])
+    text_rect= text_surface.get_rect()
+    text_rect.midtop=(x,y)
+    surface.blit(text_surface,text_rect)
 
 def generar_fila_de_monedas(y):
     fila_de_monedas = []
@@ -97,7 +105,10 @@ while running:
             pygame.display.flip()
             pygame.time.delay(3000)
             running = False
-
+    
+    dibujar_texto(screen, str(score),25 ,70,10)
+    screen.blit(moneda_image1,(25,9))
+    
     pygame.display.flip()
 
 pygame.quit()
