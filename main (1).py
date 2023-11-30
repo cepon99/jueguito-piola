@@ -8,6 +8,64 @@ alto = 600
 screen = pygame.display.set_mode((ancho, alto))
 pygame.display.set_caption("Cat, run!")
 
+class Jugador(pygame.sprite.Sprite):
+    def __init__(self, x, y, image):
+        super().__init__()
+        self.image = image
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y)
+
+    def disparo(self):
+        bala = disparos(self.rect.right, self.rect.centery)
+        balas.add(bala)
+      
+class disparos(pygame.sprite.Sprite):
+    def __init__(self, centerx, top):
+        super().__init__()
+        self.image = pygame.transform.scale(pygame.image.load("disparo.png").convert(), (10, 20))
+        self.rect = self.image.get_rect()
+        self.rect.centerx = centerx
+        self.rect.top = top
+        self.speed = 25  # Velocidad de la bala
+
+    def update(self, jugador_rect):
+        self.rect.x += self.speed
+        self.rect.top = jugador_rect.centery  # Actualizar la posición vertical según el jugador
+        if self.rect.right > ancho:  # Eliminar la bala cuando sale de la pantalla
+            self.kill()
+
+
+class game:
+  # Música de fondo
+  pygame.mixer.music.load("musica.mpeg")
+  pygame.mixer.music.play(-1)
+  # Logo del juego
+  logo = pygame.image.load("logo.png")
+  pygame.display.set_icon(logo)
+  
+  def __init__(self,ancho,alto):
+    self.ancho=800
+    self.alto=600
+  def dibujar_texto (surface, text, size,x,y):
+      font= pygame.font.SysFont("serif",size)
+      text_surface= font.render(text, True, [255,255,255])
+      text_rect= text_surface.get_rect()
+      text_rect.midtop=(x,y)
+      surface.blit(text_surface,text_rect)
+
+  def generar_fila_de_monedas(y):
+      fila_de_monedas = []
+      for i in range(random.randint(5, 10)):
+          x = 800 + i * moneda_image.get_width()  # Coloca las monedas en una fila
+          fila_de_monedas.append(pygame.Rect(x, y, moneda_image.get_width(), moneda_image.get_height()))
+      return fila_de_monedas
+
+        
+balas=pygame.sprite.Group()
+jugadores=pygame.sprite.Group()
+
+
+
 # Música de fondo
 pygame.mixer.music.load("musica.mpeg")
 pygame.mixer.music.play(-1)
@@ -16,7 +74,10 @@ pygame.mixer.music.play(-1)
 logo = pygame.image.load("logo.png")
 pygame.display.set_icon(logo)
 
-jetpack_image = pygame.image.load(os.path.join("salta.png")).convert_alpha()
+
+jugador_imagen = pygame.image.load("salta.png").convert_alpha()
+jugador = Jugador(50, 300, jugador_imagen)
+jugadores.add(jugador)
 obstacle_image = pygame.image.load(os.path.join("obs1.png")).convert_alpha()
 misil_image = pygame.image.load(os.path.join("misil.png")).convert_alpha()
 background_image = pygame.image.load(os.path.join("fondo1.png")).convert_alpha()
@@ -74,8 +135,8 @@ y_positions = [random.randint(100, 500) for _ in range(10)]
 
 jetpack_x = 50
 jetpack_y = 300
-jetpack_width = jetpack_image.get_width()
-jetpack_height = jetpack_image.get_height()
+jetpack_width = jugador_imagen.get_width()
+jetpack_height = jugador_imagen.get_height()
 
 scaled_image = pygame.transform.scale(background_image, (800, 600))
 scaled_image2 = pygame.transform.scale(game_over_image, (800, 600))
@@ -136,7 +197,7 @@ def pantalla():
         misil_rect.x -= fondo_velocidad + 5
         screen.blit(misil_image, misil_rect)
 
-    screen.blit(jetpack_image, (jetpack_x, jetpack_y))
+    screen.blit(jugador_imagen, (jetpack_x, jetpack_y))
 
 while running:
     clock.tick(60)
@@ -180,6 +241,8 @@ while running:
     elif keys[pygame.K_i]:
         pygame.mixer.music.set_volume(0.0)
         screen.blit(sonido_mute, (100, 87))
+    if keys[pygame.K_m]:
+        jugador.disparo()
 
     if jetpack_y < 600 - jetpack_height:
         jetpack_y += gravity
@@ -228,6 +291,9 @@ while running:
     pantalla()
     dibujar_texto(screen, str(score),25 ,70,10)
     screen.blit(moneda_image,(25,9))
+    balas.update(jugador.rect)
+    balas.draw(screen)
     pygame.display.flip()
+
 
 pygame.quit()
